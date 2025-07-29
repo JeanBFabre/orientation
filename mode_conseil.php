@@ -217,7 +217,7 @@ if (isset($_POST['ajax_action'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="mode-conseil">
 
     <div class="main-container">
         <a href="<?= $previousStudentId ? '?student_id='.$previousStudentId : '#' ?>" id="prev-link" class="nav-arrow <?= !$previousStudentId ? 'disabled' : '' ?>"><i class="bi bi-chevron-left"></i></a>

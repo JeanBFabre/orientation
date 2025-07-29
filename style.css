@@ -7,6 +7,16 @@
       --admin-color: #dc3545;
       --direction-color: #198754;
       --prof-color: #6610f2;
+
+      --success-color: #198754;
+      --light-bg: #f8f9fa;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --bs-primary-rgb: 78, 115, 223;
+      --bs-success-rgb: 28, 200, 138;
+      --bs-warning-rgb: 246, 194, 62;
+      --bs-info-rgb: 54, 185, 204;
+      --bs-dark-rgb: 58, 59, 69;
+
     }
 
     .navbar-brand img {
@@ -100,6 +110,9 @@
 /* End header.php */
 
 /* Begin login.php */
+
+    
+    .login-page {
     :root {
       --primary-color: #0d6efd;
       --secondary-color: #6c757d;
@@ -109,6 +122,7 @@
     }
     
     body {
+
       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
       min-height: 100vh;
       display: flex;
@@ -268,6 +282,10 @@
 /* End login.php */
 
 /* Begin list_classes.php */
+
+    
+    .list-classes {
+
     :root {
       --primary-color: #0d6efd;
       --secondary-color: #6c757d;
@@ -276,6 +294,7 @@
     }
     
     body {
+
       background-color: #f8f9fa;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
@@ -453,6 +472,9 @@
 /* End list_classes.php */
 
 /* Begin class.php */
+    
+    .class-page {
+
     :root {
       --primary-color: #0d6efd;
       --secondary-color: #6c757d;
@@ -462,6 +484,7 @@
     }
     
     body {
+
       background-color: #f8f9fa;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
@@ -773,6 +796,10 @@
 /* End dashboard.php */
 
 /* Begin admin_dashboard.php */
+
+
+        .admin-dashboard {
+
         :root {
             --bs-primary-rgb: 78, 115, 223;
             --bs-success-rgb: 28, 200, 138;
@@ -782,6 +809,7 @@
         }
 
         body {
+
             background-color: #f8f9fc;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -926,12 +954,14 @@
 /* End list_students.php */
 
 /* Begin management_dashboard.php */
+
     :root {
         --bs-primary-rgb: 78, 115, 223;
         --bs-success-rgb: 28, 200, 138;
         --bs-warning-rgb: 246, 194, 62;
         --bs-info-rgb: 54, 185, 204;
     }
+
     .stat-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border-radius: 0.75rem; border: none; }
     .stat-card:hover { transform: translateY(-5px); box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1); }
     .card { border-radius: 0.75rem; border: none; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); }
@@ -950,7 +980,9 @@
 
 /* Begin admin_panel.php */
     /* Styles inspirés du modèle pour une interface moderne */
+
     :root { --bs-primary-rgb: 78, 115, 223; }
+
     .card { border-radius: 0.75rem; border: none; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); }
     .card-header { background-color: #f8f9fc; border-bottom: 1px solid #e3e6f0; font-weight: bold; }
     .nav-tabs .nav-link { border-top-left-radius: .5rem; border-top-right-radius: .5rem; }
@@ -961,9 +993,19 @@
 /* End admin_panel.php */
 
 /* Begin profile.php */
+         .student-profile {
+             --primary: #2c3e50;
+             --secondary: #34495e;
+             --accent: #3498db;
+             --light: #ecf0f1;
+             --success: #27ae60;
+             --warning: #f39c12;
+             --danger: #e74c3c;
+
          :root {
              --primary: #2c3e50; --secondary: #34495e; --accent: #3498db;
              --light: #ecf0f1; --success: #27ae60; --warning: #f39c12; --danger: #e74c3c;
+
          }
          body.student-profile {
              font-family: 'Segoe UI', system-ui, sans-serif;
@@ -1113,9 +1155,15 @@
 /* End profile.php */
 
 /* Begin mode_conseil.php */
+
+        .mode-conseil { --primary: #4361ee; --primary-light: #4895ef; --secondary: #aface7f5; --dark: #1e2a38; --dark-panel: #2a3b4d; --light: #f8f9fa; --text-light: #e1e9f2; --text-muted: #8495a9; --border-color: #40566e; --success: #4cc9f0; --warning: #f7b801; --danger: #f72585; --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body.mode-conseil { background: linear-gradient(135deg, var(--dark) 0%, #16202d 100%); color: var(--text-light); font-family: 'Roboto', sans-serif; min-height: 100vh; overflow-x: hidden; overscroll-behavior: none; }
+
         :root { --primary: #4361ee; --primary-light: #4895ef; --secondary: #aface7f5; --dark: #1e2a38; --dark-panel: #2a3b4d; --light: #f8f9fa; --text-light: #e1e9f2; --text-muted: #8495a9; --border-color: #40566e; --success: #4cc9f0; --warning: #f7b801; --danger: #f72585; --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: linear-gradient(135deg, var(--dark) 0%, #16202d 100%); color: var(--text-light); font-family: 'Roboto', sans-serif; min-height: 100vh; overflow-x: hidden; overscroll-behavior: none; }
+
         h1, h2, h3, h4, h5, .section-title { font-family: 'Montserrat', sans-serif; font-weight: 600; }
         .main-container { display: grid; grid-template-rows: auto 1fr; height: 100vh; padding: 1.5rem; gap: 1.5rem; position: relative; max-width: 1600px; margin: 0 auto; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: rgba(42, 59, 77, 0.85); border-radius: 16px; border: 1px solid var(--border-color); backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25); z-index: 20; animation: slideDown 0.5s ease-out; }
@@ -1174,6 +1222,8 @@
 /* End mode_conseil.php */
 
 /* Begin comment.php */
+  .comment-section {
+=======
   :root {
     --facebook-blue: #1877f2;
     --comment-bg: #f0f2f5;

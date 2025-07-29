@@ -87,7 +87,7 @@ $stats = [
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="admin-dashboard">
     <!-- En-tête -->
     <header class="admin-header">
         <div class="container">
