@@ -162,6 +162,27 @@ $classCounts = array_column($chartData['classDistribution'], 'count');
 include 'header.php';
 ?>
 
+<style>
+    :root {
+        --bs-primary-rgb: 78, 115, 223;
+        --bs-success-rgb: 28, 200, 138;
+        --bs-warning-rgb: 246, 194, 62;
+        --bs-info-rgb: 54, 185, 204;
+    }
+    .stat-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border-radius: 0.75rem; border: none; }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1); }
+    .card { border-radius: 0.75rem; border: none; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); }
+    .card-header { background-color: #fff; border-bottom: 1px solid #e3e6f0; }
+    .progress { height: 12px; border-radius: 1rem; }
+    .form-check-label { border: 1px solid #ddd; border-radius: 0.5rem; padding: 0.75rem; transition: all 0.2s; cursor: pointer; }
+    .form-check-input:checked + .form-check-label { border-color: var(--bs-primary); background-color: rgba(var(--bs-primary-rgb), 0.05); }
+    /* Correctif pour les graphiques qui débordent */
+    .chart-container {
+        position: relative;
+        height: 400px; /* Hauteur fixe pour le conteneur du graphique horizontal */
+        width: 100%;
+    }
+</style>
 
 <div class="container-fluid py-4">
     <header class="d-flex justify-content-between align-items-center mb-4">

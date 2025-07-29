@@ -125,6 +125,111 @@ $hasEvent = array_column($dates, 'event_date');
 include 'header.php';
 ?>
 
+<style>
+    .stat-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        border-radius: 12px;
+        overflow: hidden;
+        border: none;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    .calendar {
+        border-collapse: separate;
+        border-spacing: 3px;
+    }
+    .calendar th {
+        width: 32px;
+        height: 32px;
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .calendar td {
+        width: 32px;
+        height: 32px;
+        text-align: center;
+        vertical-align: middle;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+    .calendar td:hover {
+        background-color: #e9ecef;
+    }
+    .calendar td.today {
+        background-color: #0d6efd;
+        color: white;
+        font-weight: bold;
+    }
+    .calendar td.has-event {
+        position: relative;
+    }
+    .calendar td.has-event::after {
+        content: '';
+        position: absolute;
+        bottom: 2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 5px;
+        height: 5px;
+        background-color: #dc3545;
+        border-radius: 50%;
+    }
+    .event-card {
+        border-left: 4px solid #0d6efd;
+        transition: all 0.2s;
+    }
+    .event-card:hover {
+        transform: translateX(5px);
+        background-color: #f8f9fa;
+    }
+    .comment-card {
+        border-left: 4px solid #20c997;
+    }
+    .activity-timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    .activity-timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: #dee2e6;
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -24px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #0d6efd;
+        border: 2px solid white;
+    }
+    .badge-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+</style>
 
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">

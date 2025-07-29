@@ -619,6 +619,32 @@ include 'header.php';
 
 <?php include 'footer.php'; ?>
 
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+    .row-checkbox:checked + td .col-name a {
+        font-weight: bold;
+        color: #0d6efd;
+    }
+    .selected-row {
+        background-color: rgba(13, 110, 253, 0.1) !important;
+    }
+    .action-buttons .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    .badge {
+        font-size: 0.85em;
+        padding: 0.4em 0.6em;
+        margin: 0 2px 4px 0;
+    }
+    .form-select-sm {
+        height: calc(1.5em + 0.5rem + 2px);
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
