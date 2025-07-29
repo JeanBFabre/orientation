@@ -295,24 +295,8 @@
      }
      $iO->close();
 
-     // 4. Gestion des mentions
-     $d = $conn->prepare("DELETE FROM mentions WHERE preference_id = ?");
-     $d->bind_param('i', $pref['id']);
-     $d->execute();
-     $d->close();
-
-     $iM = $conn->prepare("INSERT INTO mentions (preference_id, trimester, mention) VALUES (?, ?, ?)");
-     foreach ([1, 2, 3] as $t) {
-         $m = $_POST['mention'][$t] ?? '';
-         if ($m) {
-             $iM->bind_param('iis', $pref['id'], $t, $m);
-             $iM->execute();
-         }
-     }
-     $iM->close();
-
-     return ['', 'Avis et mentions enregistrés avec succès.'];
- }
+    return ['', 'Avis enregistrés avec succès.'];
+}
 
  /** * Gère la mise à jour des options
   */
@@ -508,14 +492,49 @@
  [$abreviations, $mentionAbbr] = get_abbreviations();
 
  // Rechargement après modification
- if ($success && !$error) {
-     $pref = reload_preferences($conn, $pref['id']);
-     [$opinions, $mentions] = load_opinions_mentions($conn, $pref['id']);
-     [$speArr, $speArrT2, $speArrT3, $optArr, $drop, $abandoned, $repeated] = prepare_display_data($pref);
- }
+if ($success && !$error) {
+    $pref = reload_preferences($conn, $pref['id']);
+    [$opinions, $mentions] = load_opinions_mentions($conn, $pref['id']);
+    [$speArr, $speArrT2, $speArrT3, $optArr, $drop, $abandoned, $repeated] = prepare_display_data($pref);
+}
 
- // Inclusion de l'en-tête
- include 'header.php';
+// Préparation des données pour le graphique des avis
+$statuses = ['Favorable', 'Réserve', 'Défavorable'];
+$opinionsCount = [];
+for ($t = 1; $t <= 3; $t++) {
+    $opinionsCount[$t] = array_fill_keys($statuses, 0);
+    if (!empty($opinions[$t])) {
+        foreach ($opinions[$t] as $s) {
+            if (isset($opinionsCount[$t][$s])) {
+                $opinionsCount[$t][$s]++;
+            }
+        }
+    }
+}
+$opinionsChartData = [
+    'labels' => ['T1', 'T2', 'T3'],
+    'datasets' => [
+        [
+            'label' => 'Favorable',
+            'backgroundColor' => '#27ae60',
+            'data' => [$opinionsCount[1]['Favorable'], $opinionsCount[2]['Favorable'], $opinionsCount[3]['Favorable']],
+        ],
+        [
+            'label' => 'Réserve',
+            'backgroundColor' => '#f39c12',
+            'data' => [$opinionsCount[1]['Réserve'], $opinionsCount[2]['Réserve'], $opinionsCount[3]['Réserve']],
+        ],
+        [
+            'label' => 'Défavorable',
+            'backgroundColor' => '#e74c3c',
+            'data' => [$opinionsCount[1]['Défavorable'], $opinionsCount[2]['Défavorable'], $opinionsCount[3]['Défavorable']],
+        ],
+    ],
+];
+$opinionsChartJson = json_encode($opinionsChartData);
+
+// Inclusion de l'en-tête
+include 'header.php';
  ?>
  <!DOCTYPE html>
  <html lang="fr">
@@ -673,8 +692,12 @@
          }
          .status-favorable { background-color: rgba(39, 174, 96, 0.15); color: #27ae60; }
          .status-reserve { background-color: rgba(243, 156, 18, 0.15); color: #f39c12; }
-         .status-defavorable { background-color: rgba(231, 76, 60, 0.15); color: #e74c3c; }
-     </style>
+        .status-defavorable { background-color: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+    </style>
  </head>
  <body class="student-profile">
      <div class="container py-3">
@@ -824,15 +847,24 @@
                                      </div>
                                  <?php endfor; ?>
                              </div>
-                             <button type="submit" name="save_mentions" class="btn btn-info mt-3"><i class="bi bi-save"></i> Enregistrer</button>
-                         </form>
-                     </div>
-                 </div>
-             </div>
+                            <button type="submit" name="save_mentions" class="btn btn-info mt-3"><i class="bi bi-save"></i> Enregistrer</button>
+                        </form>
+                    </div>
+                </div>
 
-             <div>
-                 <?php if ($grade === 'Seconde') : ?>
-                     <div class="section-card">
+                <div class="section-card">
+                    <div class="section-header"><span>Graphique des avis</span></div>
+                    <div class="section-body">
+                        <div class="chart-container">
+                            <canvas id="opinionsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <?php if ($grade === 'Seconde') : ?>
+                    <div class="section-card">
                          <div class="section-header"><span>Conseil de classe – Avis sur les vœux</span></div>
                          <div class="section-body">
                              <form method="post">
@@ -1090,8 +1122,9 @@
          </div>
      </div>
 
-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-     <script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
          // Gestion des onglets de trimestre
          document.querySelectorAll('.trimester-tab').forEach(tab => {
              tab.addEventListener('click', () => {
@@ -1138,11 +1171,26 @@
    });
 
    // Lorsque la section se referme
-   collapseEl.addEventListener('hide.bs.collapse', () => {
-     btn.setAttribute('aria-expanded', 'false');
-     icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
-   });
- });
+  collapseEl.addEventListener('hide.bs.collapse', () => {
+    btn.setAttribute('aria-expanded', 'false');
+    icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+  });
+});
+
+// Initialisation du graphique des avis
+if (document.getElementById('opinionsChart')) {
+    const chartData = <?php echo $opinionsChartJson; ?>;
+    new Chart(document.getElementById('opinionsChart'), {
+        type: 'bar',
+        data: chartData,
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+}
 
 
 
