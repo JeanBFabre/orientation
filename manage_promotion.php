@@ -91,19 +91,6 @@ $optionsList = [
 include 'header.php';
 ?>
 
-<style>
-  /* Overlay de bienvenue */
-  #yearOverlay {
-    position: fixed; top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: #000; color: #fff;
-    display: none;
-    align-items: center; justify-content: center;
-    font-size: 2rem; opacity: 0;
-    transition: opacity 1s ease;
-    z-index: 2000;
-  }
-</style>
 
 <?php if ($_SESSION['current_term'] === 3): ?>
   <div class="text-center my-4">

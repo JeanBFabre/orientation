@@ -158,58 +158,6 @@ if (!empty($comments_flat)) {
 }
 ?>
 
-<style>
-  :root {
-    --facebook-blue: #1877f2;
-    --comment-bg: #f0f2f5;
-    --hover-bg: #e4e6e9;
-    --like-color: #ff0066;
-  }
-  .comment-section { border-top: 1px solid #e4e6eb; padding-top: 1rem; }
-  .comment-form { display: flex; gap: 10px; margin-bottom: 1rem; }
-  .avatar-comment { width: 40px; height: 40px; border-radius: 50%; background-color: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }
-  .comment-input-container { flex-grow: 1; }
-  .comment-input { width: 100%; border-radius: 18px; border: 1px solid #dddfe2; padding: 8px 12px; background-color: var(--comment-bg); transition: all 0.2s; resize: none; }
-  .comment-input:focus { outline: none; background-color: white; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2); }
-  .comment-submit { margin-top: 8px; background-color: var(--facebook-blue); color: white; border: none; border-radius: 6px; padding: 6px 15px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
-  .comment-submit:hover { background-color: #166fe5; }
-  .comment-list { margin-top: 1rem; }
-  .comment-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f2f5; }
-  .comment-content-wrapper { flex-grow: 1; }
-  .comment-header { display: flex; align-items: center; margin-bottom: 4px; }
-  .comment-author { font-weight: 600; font-size: 0.95rem; }
-  .comment-time { font-size: 0.75rem; color: #65676b; margin-left: 8px; }
-  .comment-text { font-size: 0.9rem; line-height: 1.4; padding: 8px 12px; background-color: var(--comment-bg); border-radius: 18px; display: inline-block; max-width: 100%; word-break: break-word; }
-  .comment-actions { display: flex; gap: 15px; margin-top: 5px; margin-left: 10px; font-size: 0.8rem; color: #65676b; }
-  .comment-action { background: none; border: none; padding: 0; cursor: pointer; transition: color 0.2s; display: flex; align-items: center; gap: 4px; }
-  .comment-action:hover { color: var(--accent); }
-  .comment-edit-form { margin-top: 8px; display: none; }
-  .edit-comment-input { width: 100%; border-radius: 18px; border: 1px solid #dddfe2; padding: 8px 12px; background-color: white; resize: none; margin-bottom: 8px; }
-  .edit-buttons { display: flex; gap: 8px; justify-content: flex-end; }
-  .edit-cancel { background: none; border: none; color: #65676b; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
-  .edit-cancel:hover { background-color: var(--hover-bg); }
-  .edit-submit { background-color: var(--facebook-blue); color: white; border: none; border-radius: 6px; padding: 6px 15px; font-weight: 600; cursor: pointer; }
-  .comment-options { position: relative; margin-left: auto; }
-  .like-btn { cursor: pointer; transition: all 0.3s ease; }
-  .like-btn:hover { transform: scale(1.1); }
-  .like-btn.liked { color: var(--like-color); }
-  .like-btn .bi { transition: all 0.3s ease; }
-  .like-btn.liked .bi { animation: pulse 0.5s ease; }
-  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
-  .likers-tooltip { position: absolute; background: white; border: 1px solid #ddd; padding: 8px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; max-width: 200px; display: none; }
-  .reply-form { margin-top: 10px; display: none; }
-  .reply-btn { cursor: pointer; color: var(--accent); font-size: 0.85rem; }
-  .reply-btn:hover { text-decoration: underline; }
-  .comment-replies { margin-left: 52px; margin-top: 10px; }
-  .reply-item { display: flex; gap: 12px; padding-top: 10px; }
-  .options-button { background: none; border: none; color: #65676b; cursor: pointer; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background-color 0.2s; }
-  .options-button:hover { background-color: var(--hover-bg); }
-  .options-menu { position: absolute; top: 100%; right: 0; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1); width: 180px; z-index: 100; overflow: hidden; display: none; list-style: none; padding: 5px 0; }
-  .option-item { padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background-color 0.2s; background: none; border: none; width: 100%; text-align: left; }
-  .option-item:hover { background-color: var(--hover-bg); }
-  .option-item.delete { color: var(--danger); }
-  .comment-edited { font-size: 0.8rem; color: #6c757d; font-style: italic; }
-</style>
 
 <div class="section-card">
   <div class="section-header">
