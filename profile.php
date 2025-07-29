@@ -498,40 +498,6 @@ if ($success && !$error) {
     [$speArr, $speArrT2, $speArrT3, $optArr, $drop, $abandoned, $repeated] = prepare_display_data($pref);
 }
 
-// Préparation des données pour le graphique des avis
-$statuses = ['Favorable', 'Réserve', 'Défavorable'];
-$opinionsCount = [];
-for ($t = 1; $t <= 3; $t++) {
-    $opinionsCount[$t] = array_fill_keys($statuses, 0);
-    if (!empty($opinions[$t])) {
-        foreach ($opinions[$t] as $s) {
-            if (isset($opinionsCount[$t][$s])) {
-                $opinionsCount[$t][$s]++;
-            }
-        }
-    }
-}
-$opinionsChartData = [
-    'labels' => ['T1', 'T2', 'T3'],
-    'datasets' => [
-        [
-            'label' => 'Favorable',
-            'backgroundColor' => '#27ae60',
-            'data' => [$opinionsCount[1]['Favorable'], $opinionsCount[2]['Favorable'], $opinionsCount[3]['Favorable']],
-        ],
-        [
-            'label' => 'Réserve',
-            'backgroundColor' => '#f39c12',
-            'data' => [$opinionsCount[1]['Réserve'], $opinionsCount[2]['Réserve'], $opinionsCount[3]['Réserve']],
-        ],
-        [
-            'label' => 'Défavorable',
-            'backgroundColor' => '#e74c3c',
-            'data' => [$opinionsCount[1]['Défavorable'], $opinionsCount[2]['Défavorable'], $opinionsCount[3]['Défavorable']],
-        ],
-    ],
-];
-$opinionsChartJson = json_encode($opinionsChartData);
 
 // Inclusion de l'en-tête
 include 'header.php';
@@ -693,10 +659,6 @@ include 'header.php';
          .status-favorable { background-color: rgba(39, 174, 96, 0.15); color: #27ae60; }
          .status-reserve { background-color: rgba(243, 156, 18, 0.15); color: #f39c12; }
         .status-defavorable { background-color: rgba(231, 76, 60, 0.15); color: #e74c3c; }
-        .chart-container {
-            position: relative;
-            height: 250px;
-        }
     </style>
  </head>
  <body class="student-profile">
@@ -852,14 +814,6 @@ include 'header.php';
                     </div>
                 </div>
 
-                <div class="section-card">
-                    <div class="section-header"><span>Graphique des avis</span></div>
-                    <div class="section-body">
-                        <div class="chart-container">
-                            <canvas id="opinionsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div>
@@ -1123,7 +1077,6 @@ include 'header.php';
      </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
          // Gestion des onglets de trimestre
          document.querySelectorAll('.trimester-tab').forEach(tab => {
@@ -1177,20 +1130,6 @@ include 'header.php';
   });
 });
 
-// Initialisation du graphique des avis
-if (document.getElementById('opinionsChart')) {
-    const chartData = <?php echo $opinionsChartJson; ?>;
-    new Chart(document.getElementById('opinionsChart'), {
-        type: 'bar',
-        data: chartData,
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 } }
-            }
-        }
-    });
-}
 
 
 
