@@ -295,24 +295,28 @@
      }
      $iO->close();
 
-     // 4. Gestion des mentions
-     $d = $conn->prepare("DELETE FROM mentions WHERE preference_id = ?");
-     $d->bind_param('i', $pref['id']);
-     $d->execute();
-     $d->close();
+    // 4. Gestion des mentions uniquement si elles sont fournies
+    if (isset($_POST['mention'])) {
+        $d = $conn->prepare("DELETE FROM mentions WHERE preference_id = ?");
+        $d->bind_param('i', $pref['id']);
+        $d->execute();
+        $d->close();
 
-     $iM = $conn->prepare("INSERT INTO mentions (preference_id, trimester, mention) VALUES (?, ?, ?)");
-     foreach ([1, 2, 3] as $t) {
-         $m = $_POST['mention'][$t] ?? '';
-         if ($m) {
-             $iM->bind_param('iis', $pref['id'], $t, $m);
-             $iM->execute();
-         }
-     }
-     $iM->close();
+        $iM = $conn->prepare("INSERT INTO mentions (preference_id, trimester, mention) VALUES (?, ?, ?)");
+        foreach ([1, 2, 3] as $t) {
+            $m = $_POST['mention'][$t] ?? '';
+            if ($m) {
+                $iM->bind_param('iis', $pref['id'], $t, $m);
+                $iM->execute();
+            }
+        }
+        $iM->close();
 
-     return ['', 'Avis et mentions enregistrés avec succès.'];
- }
+        return ['', 'Avis et mentions enregistrés avec succès.'];
+    }
+
+    return ['', 'Avis enregistrés avec succès.'];
+}
 
  /** * Gère la mise à jour des options
   */
@@ -502,17 +506,54 @@
  [$error, $success] = handle_post_requests($conn, $grade, $pref, $studentId, $classId);
 
  // Préparation des données pour la vue
- [$speArr, $speArrT2, $speArrT3, $optArr, $drop, $abandoned, $repeated] = prepare_display_data($pref);
- $allSpe = get_specialties_list();
- $allOptions = get_options_list();
- [$abreviations, $mentionAbbr] = get_abbreviations();
+[$speArr, $speArrT2, $speArrT3, $optArr, $drop, $abandoned, $repeated] = prepare_display_data($pref);
+$allSpe = get_specialties_list();
+$allOptions = get_options_list();
+[$abreviations, $mentionAbbr] = get_abbreviations();
+
+// Préparation des données pour le graphique des avis
+$opinionSummary = [
+    'Favorable'    => [0, 0, 0],
+    'Réserve'      => [0, 0, 0],
+    'Défavorable'  => [0, 0, 0]
+];
+foreach ($opinions as $trim => $data) {
+    foreach ($data as $status) {
+        if (isset($opinionSummary[$status])) {
+            $opinionSummary[$status][$trim - 1]++;
+        }
+    }
+}
+
+$opChartLabels = json_encode(['T1', 'T2', 'T3']);
+$opChartFav    = json_encode($opinionSummary['Favorable']);
+$opChartRes    = json_encode($opinionSummary['Réserve']);
+$opChartDef    = json_encode($opinionSummary['Défavorable']);
+
 
  // Rechargement après modification
- if ($success && !$error) {
-     $pref = reload_preferences($conn, $pref['id']);
-     [$opinions, $mentions] = load_opinions_mentions($conn, $pref['id']);
-     [$speArr, $speArrT2, $speArrT3, $optArr, $drop, $abandoned, $repeated] = prepare_display_data($pref);
- }
+if ($success && !$error) {
+    $pref = reload_preferences($conn, $pref['id']);
+    [$opinions, $mentions] = load_opinions_mentions($conn, $pref['id']);
+    [$speArr, $speArrT2, $speArrT3, $optArr, $drop, $abandoned, $repeated] = prepare_display_data($pref);
+    // Recalcul des données de graphique après mise à jour
+    $opinionSummary = [
+        'Favorable'    => [0, 0, 0],
+        'Réserve'      => [0, 0, 0],
+        'Défavorable'  => [0, 0, 0]
+    ];
+    foreach ($opinions as $trim => $data) {
+        foreach ($data as $status) {
+            if (isset($opinionSummary[$status])) {
+                $opinionSummary[$status][$trim - 1]++;
+            }
+        }
+    }
+    $opChartLabels = json_encode(['T1', 'T2', 'T3']);
+    $opChartFav    = json_encode($opinionSummary['Favorable']);
+    $opChartRes    = json_encode($opinionSummary['Réserve']);
+    $opChartDef    = json_encode($opinionSummary['Défavorable']);
+}
 
  // Inclusion de l'en-tête
  include 'header.php';
@@ -870,11 +911,17 @@
                                          </div>
                                      </div>
                                  <?php endfor; ?>
-                                 <button type="submit" name="save_opinions" class="btn btn-info"><i class="bi bi-save"></i> Enregistrer les avis</button>
-                             </form>
-                         </div>
-                     </div>
-                 <?php endif; ?>
+                                <button type="submit" name="save_opinions" class="btn btn-info"><i class="bi bi-save"></i> Enregistrer les avis</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="section-card mt-3">
+                        <div class="section-header"><span>Résumé des avis</span></div>
+                        <div class="section-body">
+                            <div style="height:300px"><canvas id="opinionsChart"></canvas></div>
+                        </div>
+                    </div>
+                <?php endif; ?>
 
                  <?php if (in_array($grade, ['Seconde', 'Première'], true)) : ?>
                      <div class="section-card">
@@ -1088,10 +1135,11 @@
                  </form>
              </div>
          </div>
-     </div>
+    </div>
 
-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-     <script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
          // Gestion des onglets de trimestre
          document.querySelectorAll('.trimester-tab').forEach(tab => {
              tab.addEventListener('click', () => {
@@ -1138,11 +1186,32 @@
    });
 
    // Lorsque la section se referme
-   collapseEl.addEventListener('hide.bs.collapse', () => {
-     btn.setAttribute('aria-expanded', 'false');
-     icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
-   });
- });
+  collapseEl.addEventListener('hide.bs.collapse', () => {
+    btn.setAttribute('aria-expanded', 'false');
+    icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+  });
+});
+
+  // Graphique des avis
+  const opinionCtx = document.getElementById('opinionsChart');
+  if (opinionCtx) {
+    new Chart(opinionCtx, {
+      type: 'bar',
+      data: {
+        labels: <?= $opChartLabels ?>,
+        datasets: [
+          { label: 'Favorable', data: <?= $opChartFav ?>, backgroundColor: 'rgba(39,174,96,0.7)' },
+          { label: 'Réserve', data: <?= $opChartRes ?>, backgroundColor: 'rgba(243,156,18,0.7)' },
+          { label: 'Défavorable', data: <?= $opChartDef ?>, backgroundColor: 'rgba(231,76,60,0.7)' }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  }
 
 
 
