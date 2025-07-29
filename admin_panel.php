@@ -137,16 +137,6 @@ while($row = $settings_result->fetch_assoc()){
 include 'header.php'; // Inclure l'en-tête HTML
 ?>
 
-<style>
-    /* Styles inspirés du modèle pour une interface moderne */
-    :root { --bs-primary-rgb: 78, 115, 223; }
-    .card { border-radius: 0.75rem; border: none; box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15); }
-    .card-header { background-color: #f8f9fc; border-bottom: 1px solid #e3e6f0; font-weight: bold; }
-    .nav-tabs .nav-link { border-top-left-radius: .5rem; border-top-right-radius: .5rem; }
-    .nav-tabs .nav-link.active { color: #4e73df; border-color: #e3e6f0 #e3e6f0 #fff; background-color: #fff; }
-    .table-hover tbody tr:hover { background-color: rgba(var(--bs-primary-rgb), 0.05); }
-    .btn-action-sm { padding: 0.2rem 0.5rem; font-size: 0.8rem; }
-</style>
 
 <div class="container-fluid py-4">
     <header class="d-flex justify-content-between align-items-center mb-4">
