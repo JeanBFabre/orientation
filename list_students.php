@@ -272,7 +272,7 @@ $stmt = $conn->prepare("
         s.class_id,
         s.last_name, s.first_name,
         currc.level AS curr_level, currc.name AS curr_class,
-        p.id AS pref_id, p.specialties, p.options, p.drop_specialty,
+        p.id AS pref_id, p.specialties, p.options, p.drop_specialty, p.repeated,
         oldc.level AS old_level, oldc.name AS old_class
     FROM students s
     LEFT JOIN classes currc ON s.class_id = currc.id AND currc.year = ?
@@ -293,7 +293,7 @@ $students = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
 // Préparation filtres
-$speSet = []; $optSet = []; $oldSet = [];
+$speSet = []; $optSet = []; $oldSet = []; $repSet = [];
 foreach ($students as $st) {
     if ($st['specialties']) {
         foreach (explode('||', $st['specialties']) as $sp) {
@@ -307,10 +307,12 @@ foreach ($students as $st) {
     }
     $old = $st['old_class'] ? "{$st['old_level']} {$st['old_class']}" : '—';
     $oldSet[$old] = true;
+    $repSet[$st['repeated'] ? 'Oui' : 'Non'] = true;
 }
 $speList = array_keys($speSet); sort($speList);
 $optList = array_keys($optSet); sort($optList);
 $oldList = array_keys($oldSet); sort($oldList);
+$repList = array_keys($repSet); sort($repList);
 
 include 'header.php';
 ?>
@@ -365,7 +367,7 @@ include 'header.php';
     </div>
 
     <div class="row mb-3 gx-2">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label class="form-label"><em>SPE</em></label>
             <select id="filterSpe" multiple class="form-select form-select-sm">
                 <?php foreach ($speList as $sp) : ?>
@@ -373,7 +375,7 @@ include 'header.php';
                 <?php endforeach; ?>
             </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label class="form-label"><em>Options</em></label>
             <select id="filterOpt" multiple class="form-select form-select-sm">
                 <?php foreach ($optList as $op) : ?>
@@ -381,12 +383,23 @@ include 'header.php';
                 <?php endforeach; ?>
             </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label class="form-label"><em>Ancienne classe</em></label>
             <select id="filterOld" class="form-select form-select-sm">
                 <option value="">— Tous —</option>
                 <?php foreach ($oldList as $oc) : ?>
                     <option><?= htmlspecialchars($oc) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label"><em>Redoublant</em></label>
+            <select id="filterRep" class="form-select form-select-sm">
+                <option value="">— Tous —</option>
+                <?php foreach ($repList as $rp) : ?>
+                    <option value="<?= $rp === 'Oui' ? '1' : '0' ?>">
+                        <?= htmlspecialchars($rp) ?>
+                    </option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -401,7 +414,7 @@ include 'header.php';
         <input type="hidden" name="first_name" id="massFirstNameInput">
 
         <div class="table-responsive">
-            <table id="studentsTable" class="table table-hover align-middle">
+            <table id="studentsTable" class="table table-striped table-hover align-middle">
                 <thead class="table-light">
                     <tr>
                         <th><input type="checkbox" id="selectAll"></th>
@@ -411,6 +424,7 @@ include 'header.php';
                         <th data-sort="curr_class" class="fw-semibold">Actuelle</th>
                         <th class="fw-semibold">SPE</th>
                         <th class="fw-semibold">Options</th>
+                        <th class="fw-semibold">Redoublant</th>
                         <th class="fw-semibold">Supprimée</th>
                         <th class="text-end fw-semibold">Actions</th>
                     </tr>
@@ -422,13 +436,15 @@ include 'header.php';
                         $drop   = $st['drop_specialty'];
                         $old    = $st['old_class'] ? "{$st['old_level']} {$st['old_class']}" : '—';
                         $curr   = $st['curr_class'] ? "{$st['curr_level']} {$st['curr_class']}" : 'Sans classe';
+                        $rep    = (bool)$st['repeated'];
                         $isChecked = in_array($st['student_id'], $checkedStudentIds);
                     ?>
                         <tr data-class-id="<?= $st['class_id'] ?? 0 ?>"
                             data-spe='<?= json_encode(array_map(fn($v)=> $abbr[$v] ?? $v, $speArr)) ?>'
                             data-opt='<?= json_encode(array_map(fn($v)=> $abbr[$v] ?? $v, $optArr)) ?>'
                             data-old-class="<?= $old ?>"
-                            data-curr-class="<?= $curr ?>">
+                            data-curr-class="<?= $curr ?>"
+                            data-repeated="<?= $st['repeated'] ? 1 : 0 ?>">
                             <td>
                                 <input type="checkbox" class="row-checkbox form-check-input" name="students[]"
                                        value="<?= $st['student_id'] ?>" <?= $isChecked ? 'checked' : '' ?>>
@@ -465,6 +481,13 @@ include 'header.php';
                                     <span class="badge bg-secondary text-white"><?= $a ?></span>
                                 <?php endforeach; else: ?>
                                     <span class="text-muted fst-italic">—</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($rep): ?>
+                                    <span class="badge bg-warning text-dark">Oui</span>
+                                <?php else: ?>
+                                    <span class="text-muted">Non</span>
                                 <?php endif; ?>
                             </td>
                             <td>
@@ -630,6 +653,9 @@ include 'header.php';
     .selected-row {
         background-color: rgba(13, 110, 253, 0.1) !important;
     }
+    thead.table-light th {
+        background-color: #f8f9fa;
+    }
     .action-buttons .btn {
         padding: 0.25rem 0.5rem;
         font-size: 0.8rem;
@@ -638,6 +664,7 @@ include 'header.php';
         font-size: 0.85em;
         padding: 0.4em 0.6em;
         margin: 0 2px 4px 0;
+        border-radius: 0.4rem;
     }
     .form-select-sm {
         height: calc(1.5em + 0.5rem + 2px);
@@ -662,6 +689,7 @@ document.addEventListener('DOMContentLoaded', function() {
         filterSpe = document.getElementById('filterSpe'),
         filterOpt = document.getElementById('filterOpt'),
         filterOld = document.getElementById('filterOld'),
+        filterRep = document.getElementById('filterRep'),
         selectedCount = document.getElementById('selectedCount'),
         filteredCount = document.getElementById('filteredCount'),
         deselectAllBtn = document.getElementById('deselectAllBtn'),
@@ -688,7 +716,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let term = searchInput.value.trim().toLowerCase(),
             speF = Array.from(filterSpe.selectedOptions).map(o => o.value),
             optF = Array.from(filterOpt.selectedOptions).map(o => o.value),
-            oldF = filterOld.value;
+            oldF = filterOld.value,
+            repF = filterRep.value;
 
         let visibleCount = 0;
         
@@ -698,12 +727,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 first = row.querySelector('.col-first').textContent.toLowerCase(),
                 spe = JSON.parse(row.dataset.spe),
                 opt = JSON.parse(row.dataset.opt),
-                oldc = row.dataset.oldClass;
+                oldc = row.dataset.oldClass,
+                rep  = row.dataset.repeated;
             
             if (term && !name.includes(term) && !first.includes(term)) ok = false;
             if (speF.length && !speF.every(v => spe.includes(v))) ok = false;
             if (optF.length && !optF.every(v => opt.includes(v))) ok = false;
             if (oldF && oldc !== oldF) ok = false;
+            if (repF && rep !== repF) ok = false;
             
             row.style.display = ok ? '' : 'none';
             if (ok) visibleCount++;
@@ -717,7 +748,7 @@ document.addEventListener('DOMContentLoaded', function() {
         filteredCount.textContent = `${visibleRows.length} élève(s) affiché(s)`;
     }
 
-    [searchInput, filterSpe, filterOpt, filterOld].forEach(el => {
+    [searchInput, filterSpe, filterOpt, filterOld, filterRep].forEach(el => {
         el.addEventListener('input', updateDisplay);
         el.addEventListener('change', updateDisplay);
     });
